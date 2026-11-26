@@ -1,0 +1,10 @@
+{
+  "name": "quan-ly-thu-chi-pro",
+  "version": "1.0.0",
+  "description": "Ung dung Quan ly Thu Chi & Ngan sach Ca nhan - Fullstack Node.js + Database",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Vuong Thi Anh - 31241025843"
+}

@@ -1,0 +1,97 @@
+{
+  "user": {
+    "fullName": "Vương Thị Anh",
+    "studentCode": "31241025843",
+    "monthlyBudgetLimit": 6500000
+  },
+  "transactions": [
+    {
+      "id": "GD-202601",
+      "title": "Trợ cấp sinh hoạt phí tháng 11",
+      "category": "Học bổng & Trợ cấp",
+      "type": "INCOME",
+      "amount": 3500000,
+      "status": "COMPLETED",
+      "date": "2026-11-01",
+      "paymentMethod": "Chuyển khoản",
+      "note": "Gia đình gửi đầu tháng"
+    },
+    {
+      "id": "GD-202602",
+      "title": "Doanh thu bán hàng online đợt 1",
+      "category": "Kinh doanh & Bán hàng",
+      "type": "INCOME",
+      "amount": 2950000,
+      "status": "COMPLETED",
+      "date": "2026-11-04",
+      "paymentMethod": "Chuyển khoản",
+      "note": "Đã đối soát đủ doanh thu"
+    },
+    {
+      "id": "GD-202603",
+      "title": "Thanh toán tiền thuê nhà & điện nước",
+      "category": "Nhà ở & Điện nước",
+      "type": "EXPENSE",
+      "amount": 2600000,
+      "status": "COMPLETED",
+      "date": "2026-11-05",
+      "paymentMethod": "Chuyển khoản",
+      "note": "Hóa đơn cố định hàng tháng"
+    },
+    {
+      "id": "GD-202604",
+      "title": "Ăn trưa & cafe thảo luận nhóm",
+      "category": "Ăn uống & Cafe",
+      "type": "EXPENSE",
+      "amount": 215000,
+      "status": "COMPLETED",
+      "date": "2026-11-09",
+      "paymentMethod": "Tiền mặt",
+      "note": "Chi tiêu ăn uống cuối tuần"
+    },
+    {
+      "id": "GD-202605",
+      "title": "Mua sách chuyên ngành & in tài liệu",
+      "category": "Học tập & Sách vở",
+      "type": "EXPENSE",
+      "amount": 165000,
+      "status": "COMPLETED",
+      "date": "2026-11-12",
+      "paymentMethod": "Ví điện tử",
+      "note": "Phục vụ học kỳ mới"
+    },
+    {
+      "id": "GD-202606",
+      "title": "Mua sắm vật dụng cá nhân thiết yếu",
+      "category": "Mua sắm & Giải trí",
+      "type": "EXPENSE",
+      "amount": 480000,
+      "status": "COMPLETED",
+      "date": "2026-11-16",
+      "paymentMethod": "Ví điện tử",
+      "note": "Đặt hàng online"
+    },
+    {
+      "id": "GD-202607",
+      "title": "Đặt vé xe khách cuối tuần",
+      "category": "Di chuyển & Xăng xe",
+      "type": "EXPENSE",
+      "amount": 320000,
+      "status": "PENDING",
+      "date": "2026-11-27",
+      "paymentMethod": "Ví điện tử",
+      "note": "Chờ xác nhận giữ chỗ"
+    },
+    {
+      "id": "GD-202608",
+      "title": "Thù lao dự án Freelance thiết kế",
+      "category": "Lương & Thưởng",
+      "type": "INCOME",
+      "amount": 1500000,
+      "status": "PENDING",
+      "date": "2026-11-29",
+      "paymentMethod": "Chuyển khoản",
+      "note": "Đang chờ khách hàng tất toán"
+    }
+  ]
+}

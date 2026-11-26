@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinTrack Smart Wallet | Hệ Thống Quản Lý Thu Chi - Vương Thị Anh</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon"><i class="fa-solid fa-coins"></i></div>
+            <div>
+                <h2>FinTrack Pro</h2>
+                <span>Personal Finance System</span>
+            </div>
+        </div>
+
+        <nav class="nav-links">
+            <button class="nav-btn active" onclick="switchView('dashboard', this)">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Tổng quan & Thống kê</span>
+            </button>
+            <button class="nav-btn" onclick="switchView('ledger', this)">
+                <i class="fa-solid fa-money-bill-transfer"></i>
+                <span>Sổ cái Thu / Chi</span>
+            </button>
+            <button class="nav-btn" onclick="switchView('system-docs', this)">
+                <i class="fa-solid fa-database"></i>
+                <span>Cơ sở dữ liệu & API</span>
+            </button>
+        </nav>
+
+        <div class="budget-widget">
+            <div class="budget-top">
+                <span><i class="fa-solid fa-gauge-high"></i> Ngân sách chi tháng</span>
+                <button class="icon-btn-sm" onclick="openBudgetModal()" title="Chỉnh ngân sách"><i class="fa-solid fa-pen"></i></button>
+            </div>
+            <div class="budget-val" id="budgetLimitDisplay">6.500.000 ₫</div>
+            <div class="progress-track">
+                <div class="progress-fill" id="budgetProgressBar" style="width: 0%"></div>
+            </div>
+            <small id="budgetPercentLabel">Đã chi 0% ngân sách</small>
+        </div>
+
+        <div class="user-card">
+            <div class="user-avatar">VA</div>
+            <div>
+                <strong>Vương Thị Anh</strong>
+                <span>MSSV: 31241025843</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Container -->
+    <main class="main-wrapper">
+        <header class="topbar">
+            <div>
+                <h1 id="viewHeading">Tổng Quan Tài Chính & Thống Kê</h1>
+                <p>Theo dõi dòng tiền thu chi, kiểm soát trạng thái giao dịch & phân tích ngân sách thông minh</p>
+            </div>
+            <div class="topbar-actions">
+                <span class="conn-badge" id="connectionBadge">
+                    <span class="dot"></span> Node.js Backend Ready
+                </span>
+                <button class="btn btn-outline" onclick="exportToCSV()">
+                    <i class="fa-solid fa-file-excel"></i> Xuất CSV
+                </button>
+                <button class="btn btn-primary" onclick="openTxModal()">
+                    <i class="fa-solid fa-plus"></i> Thêm Giao Dịch
+                </button>
+            </div>
+        </header>
+
+        <!-- VIEW 1: DASHBOARD & ANALYTICS -->
+        <section id="view-dashboard" class="view-panel active">
+            <div class="kpi-row">
+                <div class="kpi-box kpi-balance">
+                    <div class="kpi-icon-wrap"><i class="fa-solid fa-wallet"></i></div>
+                    <div>
+                        <span class="kpi-title">Số dư khả dụng (Đã hoàn thành)</span>
+                        <h2 class="kpi-num" id="statBalance">0 ₫</h2>
+                        <span class="kpi-sub positive"><i class="fa-solid fa-shield-check"></i> Tổng Thu - Tổng Chi thực tế</span>
+                    </div>
+                </div>
+
+                <div class="kpi-box kpi-income">
+                    <div class="kpi-icon-wrap"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                    <div>
+                        <span class="kpi-title">Tổng Khoản Thu</span>
+                        <h2 class="kpi-num text-green" id="statIncome">0 ₫</h2>
+                        <span class="kpi-sub" id="statPendingIncome">Chờ nhận: 0 ₫</span>
+                    </div>
+                </div>
+
+                <div class="kpi-box kpi-expense">
+                    <div class="kpi-icon-wrap"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                    <div>
+                        <span class="kpi-title">Tổng Khoản Chi</span>
+                        <h2 class="kpi-num text-red" id="statExpense">0 ₫</h2>
+                        <span class="kpi-sub" id="statPendingExpense">Chờ thanh toán: 0 ₫</span>
+                    </div>
+                </div>
+
+                <div class="kpi-box kpi-count">
+                    <div class="kpi-icon-wrap"><i class="fa-solid fa-list-check"></i></div>
+                    <div>
+                        <span class="kpi-title">Trạng Thái Giao Dịch</span>
+                        <h2 class="kpi-num" id="statCount">0 giao dịch</h2>
+                        <span class="kpi-sub" id="statStatusDetail">0 Hoàn thành • 0 Chờ xử lý</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-row">
+                <div class="panel-card">
+                    <div class="panel-head">
+                        <h3><i class="fa-solid fa-chart-column"></i> Thống kê Thu - Chi theo Danh mục</h3>
+                        <span class="tag">Biểu đồ cột</span>
+                    </div>
+                    <div class="chart-area">
+                        <canvas id="categoryBarChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-head">
+                        <h3><i class="fa-solid fa-chart-pie"></i> Tỷ trọng Chi tiêu (%)</h3>
+                        <span class="tag">Đã hoàn thành</span>
+                    </div>
+                    <div class="chart-area">
+                        <canvas id="expensePieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-head">
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Giao dịch mới nhất (Bấm vào trạng thái để cập nhật nhanh)</h3>
+                    <button class="text-btn" onclick="switchView('ledger', document.querySelectorAll('.nav-btn')[1])">Quản lý tất cả <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+                <div class="table-wrap">
+                    <table class="tx-table">
+                        <thead>
+                            <tr>
+                                <th>Mã GD</th>
+                                <th>Nội dung giao dịch</th>
+                                <th>Danh mục</th>
+                                <th>Ngày GD</th>
+                                <th>Số tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentTxTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: FULL TRANSACTION LEDGER (CRUD + FILTER + STATUS) -->
+        <section id="view-ledger" class="view-panel">
+            <div class="panel-card toolbar-card">
+                <div class="search-wrap">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchQuery" placeholder="Tìm kiếm theo tên giao dịch, ghi chú hoặc mã GD..." oninput="renderUI()">
+                </div>
+                <div class="filters-wrap">
+                    <select id="typeFilter" onchange="renderUI()">
+                        <option value="ALL">Tất cả loại Thu & Chi</option>
+                        <option value="INCOME">Khoản Thu (+)</option>
+                        <option value="EXPENSE">Khoản Chi (-)</option>
+                    </select>
+                    <select id="statusFilter" onchange="renderUI()">
+                        <option value="ALL">Tất cả trạng thái</option>
+                        <option value="COMPLETED">Đã hoàn thành</option>
+                        <option value="PENDING">Chờ xử lý</option>
+                        <option value="CANCELLED">Đã hủy</option>
+                    </select>
+                    <select id="categoryFilter" onchange="renderUI()">
+                        <option value="ALL">Tất cả danh mục</option>
+                        <option value="Lương & Thưởng">Lương & Thưởng</option>
+                        <option value="Kinh doanh & Bán hàng">Kinh doanh & Bán hàng</option>
+                        <option value="Học bổng & Trợ cấp">Học bổng & Trợ cấp</option>
+                        <option value="Đầu tư & Tiết kiệm">Đầu tư & Tiết kiệm</option>
+                        <option value="Ăn uống & Cafe">Ăn uống & Cafe</option>
+                        <option value="Nhà ở & Điện nước">Nhà ở & Điện nước</option>
+                        <option value="Di chuyển & Xăng xe">Di chuyển & Xăng xe</option>
+                        <option value="Học tập & Sách vở">Học tập & Sách vở</option>
+                        <option value="Mua sắm & Giải trí">Mua sắm & Giải trí</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-head">
+                    <h3><i class="fa-solid fa-table-list"></i> Sổ cái chi tiết giao dịch (<span id="filteredTotal">0</span> bản ghi)</h3>
+                    <div class="filter-totals">
+                        <span class="chip-inc">Tổng Thu lọc: <strong id="filteredIncSum">0 ₫</strong></span>
+                        <span class="chip-exp">Tổng Chi lọc: <strong id="filteredExpSum">0 ₫</strong></span>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table class="tx-table">
+                        <thead>
+                            <tr>
+                                <th>Mã GD</th>
+                                <th>Nội dung & Ghi chú</th>
+                                <th>Danh mục</th>
+                                <th>Phân loại</th>
+                                <th>Hình thức</th>
+                                <th>Ngày GD</th>
+                                <th>Số tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fullTxTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: DATABASE & REST API ARCHITECTURE -->
+        <section id="view-system-docs" class="view-panel">
+            <div class="arch-grid">
+                <div class="panel-card">
+                    <div class="panel-head">
+                        <h3><i class="fa-solid fa-database"></i> Thiết kế Cơ sở dữ liệu (Database Schema)</h3>
+                        <span class="tag">3NF Chuẩn hóa</span>
+                    </div>
+                    <p class="arch-note">Hệ thống lưu trữ dữ liệu trực tiếp vào file <code>database/db.json</code> thông qua Node.js File System, đồng thời cung cấp đầy đủ kịch bản SQL chuẩn hóa 3 bảng tại <code>database/schema.sql</code>:</p>
+                    <div class="tables-grid">
+                        <div class="db-entity">
+                            <div class="entity-head">1. Bảng Users (Người dùng)</div>
+                            <ul>
+                                <li><b>PK</b> <code>UserID</code> (INT, AUTO_INCREMENT)</li>
+                                <li><code>FullName</code> (NVARCHAR - Vương Thị Anh)</li>
+                                <li><code>StudentCode</code> (VARCHAR - 31241025843)</li>
+                                <li><code>MonthlyBudgetLimit</code> (DECIMAL)</li>
+                            </ul>
+                        </div>
+                        <div class="db-entity">
+                            <div class="entity-head">2. Bảng Categories (Danh mục)</div>
+                            <ul>
+                                <li><b>PK</b> <code>CategoryID</code> (INT, AUTO_INCREMENT)</li>
+                                <li><code>CategoryName</code> (NVARCHAR)</li>
+                                <li><code>FlowType</code> (ENUM: INCOME / EXPENSE)</li>
+                                <li><code>ColorHex</code> (VARCHAR)</li>
+                            </ul>
+                        </div>
+                        <div class="db-entity">
+                            <div class="entity-head">3. Bảng Transactions (Giao dịch)</div>
+                            <ul>
+                                <li><b>PK</b> <code>TransactionID</code> (VARCHAR)</li>
+                                <li><b>FK</b> <code>UserID</code>, <code>CategoryID</code></li>
+                                <li><code>Title</code>, <code>Amount</code>, <code>PaymentMethod</code></li>
+                                <li><code>Status</code> (COMPLETED / PENDING / CANCELLED)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-head">
+                        <h3><i class="fa-solid fa-server"></i> Hệ thống Backend RESTful API</h3>
+                        <span class="tag">Node.js Port 3000</span>
+                    </div>
+                    <div class="endpoint-list">
+                        <div class="endpoint-row"><span class="badge-method get">GET</span> <code>/api/transactions</code> <span>Lấy danh sách giao dịch & hạn mức</span></div>
+                        <div class="endpoint-row"><span class="badge-method post">POST</span> <code>/api/transactions</code> <span>Thêm giao dịch Thu/Chi mới</span></div>
+                        <div class="endpoint-row"><span class="badge-method put">PUT</span> <code>/api/transactions/:id</code> <span>Chỉnh sửa toàn bộ thông tin giao dịch</span></div>
+                        <div class="endpoint-row"><span class="badge-method patch">PATCH</span> <code>/api/transactions/:id/status</code> <span>Cập nhật nhanh trạng thái giao dịch</span></div>
+                        <div class="endpoint-row"><span class="badge-method delete">DELETE</span> <code>/api/transactions/:id</code> <span>Xóa vĩnh viễn giao dịch</span></div>
+                        <div class="endpoint-row"><span class="badge-method put">PUT</span> <code>/api/budget</code> <span>Cập nhật hạn mức chi tiêu tháng</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL THÊM / SỬA GIAO DỊCH -->
+    <div class="modal-backdrop" id="txModal">
+        <div class="modal-dialog">
+            <div class="modal-top">
+                <h3 id="txModalTitle"><i class="fa-solid fa-circle-plus"></i> Thêm Giao Dịch Mới</h3>
+                <button class="close-btn" onclick="closeTxModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="txForm" onsubmit="submitTransactionForm(event)">
+                <input type="hidden" id="editTxId">
+                
+                <div class="radio-switch">
+                    <label>
+                        <input type="radio" name="flowType" value="EXPENSE" checked onchange="syncCategoryDropdown()">
+                        <span class="switch-pill exp"><i class="fa-solid fa-arrow-trend-down"></i> Khoản Chi (-)</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="flowType" value="INCOME" onchange="syncCategoryDropdown()">
+                        <span class="switch-pill inc"><i class="fa-solid fa-arrow-trend-up"></i> Khoản Thu (+)</span>
+                    </label>
+                </div>
+
+                <div class="field-group">
+                    <label>Nội dung giao dịch <span class="star">*</span></label>
+                    <input type="text" id="fieldTitle" required placeholder="VD: Tiền lương tháng 11, Ăn trưa, Tiền điện nước...">
+                </div>
+
+                <div class="field-grid">
+                    <div class="field-group">
+                        <label>Số tiền (VNĐ) <span class="star">*</span></label>
+                        <input type="number" id="fieldAmount" required min="1000" step="1000" placeholder="VD: 250000">
+                    </div>
+                    <div class="field-group">
+                        <label>Ngày giao dịch <span class="star">*</span></label>
+                        <input type="date" id="fieldDate" required>
+                    </div>
+                </div>
+
+                <div class="field-grid">
+                    <div class="field-group">
+                        <label>Danh mục</label>
+                        <select id="fieldCategory"></select>
+                    </div>
+                    <div class="field-group">
+                        <label>Trạng thái</label>
+                        <select id="fieldStatus">
+                            <option value="COMPLETED">✅ Đã hoàn thành</option>
+                            <option value="PENDING">⏳ Chờ xử lý</option>
+                            <option value="CANCELLED">❌ Đã hủy</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field-grid">
+                    <div class="field-group">
+                        <label>Phương thức thanh toán</label>
+                        <select id="fieldMethod">
+                            <option value="Chuyển khoản">Chuyển khoản ngân hàng</option>
+                            <option value="Ví điện tử">Ví điện tử (MoMo / ZaloPay)</option>
+                            <option value="Tiền mặt">Tiền mặt</option>
+                            <option value="Thẻ tín dụng">Thẻ tín dụng / Ghi nợ</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label>Ghi chú thêm</label>
+                        <input type="text" id="fieldNote" placeholder="Ghi chú ngắn gọn (nếu có)...">
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeTxModal()">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Lưu Giao Dịch</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CẬP NHẬT NGÂN SÁCH -->
+    <div class="modal-backdrop" id="budgetModal">
+        <div class="modal-dialog modal-narrow">
+            <div class="modal-top">
+                <h3><i class="fa-solid fa-sliders"></i> Hạn Mức Chi Tiêu Tháng</h3>
+                <button class="close-btn" onclick="closeBudgetModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="submitBudgetForm(event)">
+                <div class="field-group">
+                    <label>Nhập hạn mức chi tiêu tối đa (VNĐ)</label>
+                    <input type="number" id="budgetAmountInput" required min="100000" step="100000">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeBudgetModal()">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toastStack" class="toast-stack"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
